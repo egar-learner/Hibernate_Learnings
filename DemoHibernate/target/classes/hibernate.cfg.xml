@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+		"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+		"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="hibernate.connection.password">root1234</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/neon</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</property>
+        
+        <!-- Update = Checks if table exist then insert otherwise it creates a table and then insert values -->
+        <!-- Create = EveryTime creates a table and then insert values -->
+        <property name="hbm2ddl.auto">update</property>
+        
+        <!-- This shows the sql queries which are being fired in the console -->
+        <property name="show_sql">true</property>
+    </session-factory>
+</hibernate-configuration>
