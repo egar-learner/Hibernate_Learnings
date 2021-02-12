@@ -1,10 +1,14 @@
 package com.tyagi.DemoHibernate;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 
 //There are 3 Layer's :
@@ -29,6 +33,8 @@ import javax.persistence.Transient;
 // Entity_name = Alien, Class_name = Alien, Table_name = table_name
 
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
 @Table(name="Alien")
 public class Alien {
 	

@@ -2,10 +2,13 @@ package com.tyagi.DemoHibernate;
 
 import java.util.List;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.service.ServiceRegistry;
 
 /**
  * Hello world!
@@ -25,8 +28,13 @@ public class App
     	//Check for Hibernate Mappings
     	hibernateMapping(false);
     	
-    	hibernateFetchTypes(true);
+    	hibernateFetchTypes(false);
     	
+    	//Caching Examples
+    	hibernateCachingL1_session(false);
+    	
+    	//Caching L2_Examples
+    	hibernateCachingL2_session(true);
     	
     	
     }
@@ -148,4 +156,114 @@ public class App
 			trans.commit();
 		}
 	}
+	
+	private static void hibernateCachingL1_session(boolean doOperation) {
+		
+		//There is a L1 cache present for every session by default provided by hibernate
+		//In case user hits a query the session will check if any values present in the L1 cache
+		//If not only then a new query will be fired.
+		
+		if(doOperation) {
+			
+			Alien alien = null;
+	    	
+		Configuration conf = new Configuration().configure().addAnnotatedClass(Alien.class);
+		
+		SessionFactory sessF = conf.buildSessionFactory();
+		
+		Session sess = sessF.openSession();
+		
+		Transaction trans = sess.beginTransaction();
+		
+		alien = sess.get(Alien.class, 107);
+		
+		System.out.println(alien.toString());
+		
+		Alien alien2 = sess.get(Alien.class, 107);
+		
+		System.out.println(alien2);
+		
+		Alien alien3 = sess.get(Alien.class, 105);
+		
+		System.out.println(alien3);
+		
+		trans.commit();
+		
+		sess.close();
+		
+		Session sess1 = sessF.openSession();
+		
+		Transaction trans1 = sess1.beginTransaction();
+		
+		Alien alien4 = sess1.get(Alien.class, 107);
+		
+		System.out.println(alien4);
+		
+		trans1.commit();
+		
+		sess1.close();
+		
+		
+		/*OUTPUT
+		 * 
+Hibernate: select alien0_.aid as aid1_0_0_, alien0_.fname as fname2_0_0_, alien0_.lastName as lastname3_0_0_, alien0_.middleName as middlena4_0_0_, alien0_.techName as techname5_0_0_ from Alien alien0_ where alien0_.aid=?
+Alien [aid=107, alienName=com.tyagi.DemoHibernate.AlienName@202ae86f, aname_pet=null, techName=Java7]
+Alien [aid=107, alienName=com.tyagi.DemoHibernate.AlienName@202ae86f, aname_pet=null, techName=Java7]
+Hibernate: select alien0_.aid as aid1_0_0_, alien0_.fname as fname2_0_0_, alien0_.lastName as lastname3_0_0_, alien0_.middleName as middlena4_0_0_, alien0_.techName as techname5_0_0_ from Alien alien0_ where alien0_.aid=?
+Alien [aid=105, alienName=null, aname_pet=null, techName=Java5]
+Hibernate: select alien0_.aid as aid1_0_0_, alien0_.fname as fname2_0_0_, alien0_.lastName as lastname3_0_0_, alien0_.middleName as middlena4_0_0_, alien0_.techName as techname5_0_0_ from Alien alien0_ where alien0_.aid=?
+Alien [aid=107, alienName=com.tyagi.DemoHibernate.AlienName@8bd076a, aname_pet=null, techName=Java7]
+		 * */
+		
+		
+		}
+		
+	}
+	
+	private static void hibernateCachingL2_session(boolean doOperation) {
+		
+		Configuration con = new Configuration().configure().addAnnotatedClass(Alien.class);
+		ServiceRegistry reg = new StandardServiceRegistryBuilder().applySettings(con.getProperties()).build();
+		SessionFactory sessFact = con.buildSessionFactory(reg);
+		Session sess = sessFact.openSession();
+		
+		sess.beginTransaction();
+		
+		Alien alien = sess.get(Alien.class, 107);
+		
+		System.out.println(alien.toString());
+		Query q1 = sess.createQuery("from Alien where aid = 107");
+		q1.setCacheable(true);
+		Alien singleResult = (Alien)q1.getSingleResult();
+		System.out.println(singleResult);
+		
+		Alien alien2 = sess.get(Alien.class, 107);
+		
+		System.out.println(alien2);
+		
+		Alien alien3 = sess.get(Alien.class, 105);
+		
+		System.out.println(alien3);
+		
+		sess.getTransaction().commit();;
+		
+		sess.close();
+		
+		Session sess1 = sessFact.openSession();
+		
+		Transaction trans1 = sess1.beginTransaction();
+		
+		Alien alien4 = sess1.get(Alien.class, 107);
+		
+		System.out.println(alien4);
+		
+		trans1.commit();
+		
+		sess1.close();
+		
+		
+		
+	}
+	
+	
 }
