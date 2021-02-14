@@ -232,8 +232,10 @@ Alien [aid=107, alienName=com.tyagi.DemoHibernate.AlienName@8bd076a, aname_pet=n
 		Alien alien = sess.get(Alien.class, 107);
 		
 		System.out.println(alien.toString());
+		
 		Query q1 = sess.createQuery("from Alien where aid = 107");
 		q1.setCacheable(true);
+		
 		Alien singleResult = (Alien)q1.getSingleResult();
 		System.out.println(singleResult);
 		
